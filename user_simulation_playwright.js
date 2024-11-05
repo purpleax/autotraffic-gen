@@ -14,9 +14,19 @@ const { firefox } = require('playwright');
   const VIEWPORT_HEIGHT = parseInt(process.env.VIEWPORT_HEIGHT, 10);
   const ONLY_INTERNAL_LINKS = process.env.ONLY_INTERNAL_LINKS === 'true';
 
-  // Custom header variables
-  const CUSTOM_HEADER_NAME = process.env.CUSTOM_HEADER_NAME;
-  const CUSTOM_HEADER_VALUE = process.env.CUSTOM_HEADER_VALUE;
+  // Custom headers
+  let customHeaders = {};
+  if (process.env.CUSTOM_HEADERS) {
+    try {
+      customHeaders = JSON.parse(process.env.CUSTOM_HEADERS);
+      if (typeof customHeaders !== 'object' || Array.isArray(customHeaders)) {
+        throw new Error('CUSTOM_HEADERS must be a JSON object.');
+      }
+    } catch (error) {
+      console.error('Error parsing CUSTOM_HEADERS environment variable:', error.message);
+      process.exit(1);
+    }
+  }
 
   // Validate required environment variables
   if (
@@ -49,12 +59,10 @@ const { firefox } = require('playwright');
     // Set viewport size
     await page.setViewportSize({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT });
 
-    // Set custom header if specified
-    if (CUSTOM_HEADER_NAME && CUSTOM_HEADER_VALUE) {
-      const headers = {};
-      headers[CUSTOM_HEADER_NAME] = CUSTOM_HEADER_VALUE;
-      await page.setExtraHTTPHeaders(headers);
-      console.log(`Session ${id}: Setting custom header: ${CUSTOM_HEADER_NAME}: ${CUSTOM_HEADER_VALUE}`);
+    // Set custom headers if specified
+    if (Object.keys(customHeaders).length > 0) {
+      await page.setExtraHTTPHeaders(customHeaders);
+      console.log(`Session ${id}: Setting custom headers:`, customHeaders);
     }
 
     // Optionally disable images and CSS
