@@ -15,8 +15,6 @@ A Dockerized solution to simulate user behavior on a website using Playwright. T
 -   [Running the Container](#running-the-container)
     -   [Using Docker Compose](#using-docker-compose)
     -   [Scaling the Service](#scaling-the-service)
--   [Monitoring and Logs](#monitoring-and-logs)
--   [Stopping the Service](#stopping-the-service)
 -   [Customization](#customization)
 -   [Troubleshooting](#troubleshooting)
 
