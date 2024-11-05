@@ -36,5 +36,5 @@ COPY user_simulation_playwright.js /app/user_simulation_playwright.js
 # Expose any necessary ports (optional)
 # EXPOSE 9615
 
-# Define the command to run your script using shell format to expand environment variables
-CMD pm2-runtime start user_simulation_playwright.js -i $PM2_INSTANCES
+# Define the command to run your script using JSON array syntax and environment variable expansion
+CMD ["sh", "-c", "exec pm2-runtime start user_simulation_playwright.js -i $PM2_INSTANCES"]

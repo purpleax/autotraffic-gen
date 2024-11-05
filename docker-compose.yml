@@ -17,4 +17,6 @@ services:
       - VIEWPORT_HEIGHT=768       # Height of the browser viewport
       - PM2_INSTANCES=5           # Number of script instances to run
       - ONLY_INTERNAL_LINKS=true  # Set to 'true' to only follow internal links
+      - CUSTOM_HEADER_NAME=X-Custom-Header  # Replace with your custom header name
+      - CUSTOM_HEADER_VALUE=YourHeaderValue  # Replace with your custom header value
     restart: always

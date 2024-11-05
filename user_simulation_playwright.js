@@ -12,7 +12,11 @@ const { firefox } = require('playwright');
   const DISABLE_CSS = process.env.DISABLE_CSS === 'true';
   const VIEWPORT_WIDTH = parseInt(process.env.VIEWPORT_WIDTH, 10);
   const VIEWPORT_HEIGHT = parseInt(process.env.VIEWPORT_HEIGHT, 10);
-  const ONLY_INTERNAL_LINKS = process.env.ONLY_INTERNAL_LINKS === 'true'; // New option
+  const ONLY_INTERNAL_LINKS = process.env.ONLY_INTERNAL_LINKS === 'true';
+
+  // Custom header variables
+  const CUSTOM_HEADER_NAME = process.env.CUSTOM_HEADER_NAME;
+  const CUSTOM_HEADER_VALUE = process.env.CUSTOM_HEADER_VALUE;
 
   // Validate required environment variables
   if (
@@ -44,6 +48,14 @@ const { firefox } = require('playwright');
 
     // Set viewport size
     await page.setViewportSize({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT });
+
+    // Set custom header if specified
+    if (CUSTOM_HEADER_NAME && CUSTOM_HEADER_VALUE) {
+      const headers = {};
+      headers[CUSTOM_HEADER_NAME] = CUSTOM_HEADER_VALUE;
+      await page.setExtraHTTPHeaders(headers);
+      console.log(`Session ${id}: Setting custom header: ${CUSTOM_HEADER_NAME}: ${CUSTOM_HEADER_VALUE}`);
+    }
 
     // Optionally disable images and CSS
     if (DISABLE_IMAGES || DISABLE_CSS) {
