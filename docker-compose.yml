@@ -17,5 +17,7 @@ services:
       - VIEWPORT_HEIGHT=768       # Height of the browser viewport
       - PM2_INSTANCES=5           # Number of script instances to run
       - ONLY_INTERNAL_LINKS=true  # Set to 'true' to only follow internal links
-      - CUSTOM_HEADERS={"X-Custom-Header1":"Value1","X-Custom-Header2":"Value2"}  # JSON string of custom headers
+      - DEBUG=false               # Set to 'true' to enable debug logging
+    env_file:
+      - .env  # If you are using an .env file
     restart: always

@@ -13,6 +13,7 @@ const { firefox } = require('playwright');
   const VIEWPORT_WIDTH = parseInt(process.env.VIEWPORT_WIDTH, 10);
   const VIEWPORT_HEIGHT = parseInt(process.env.VIEWPORT_HEIGHT, 10);
   const ONLY_INTERNAL_LINKS = process.env.ONLY_INTERNAL_LINKS === 'true';
+  const DEBUG = process.env.DEBUG === 'true'; // New debug flag
 
   // Custom headers
   let customHeaders = {};
@@ -37,8 +38,10 @@ const { firefox } = require('playwright');
     isNaN(VIEWPORT_WIDTH) ||
     isNaN(VIEWPORT_HEIGHT)
   ) {
-    console.error('Error: One or more required environment variables are missing or invalid.');
-    console.error('Please ensure MIN_DELAY, MAX_DELAY, CONCURRENCY, TARGET_WEBSITE, VIEWPORT_WIDTH, and VIEWPORT_HEIGHT are set correctly.');
+    if (DEBUG) {
+      console.error('Error: One or more required environment variables are missing or invalid.');
+      console.error('Please ensure MIN_DELAY, MAX_DELAY, CONCURRENCY, TARGET_WEBSITE, VIEWPORT_WIDTH, and VIEWPORT_HEIGHT are set correctly.');
+    }
     process.exit(1);
   }
 
@@ -62,7 +65,9 @@ const { firefox } = require('playwright');
     // Set custom headers if specified
     if (Object.keys(customHeaders).length > 0) {
       await page.setExtraHTTPHeaders(customHeaders);
-      console.log(`Session ${id}: Setting custom headers:`, customHeaders);
+      if (DEBUG) {
+        console.log(`Session ${id}: Setting custom headers:`, customHeaders);
+      }
     }
 
     // Optionally disable images and CSS
@@ -82,7 +87,9 @@ const { firefox } = require('playwright');
     }
 
     try {
-      console.log(`Session ${id}: Opening the homepage ${TARGET_WEBSITE}.`);
+      if (DEBUG) {
+        console.log(`Session ${id}: Opening the homepage ${TARGET_WEBSITE}.`);
+      }
       await page.goto(TARGET_WEBSITE);
       await page.waitForTimeout(randomDelay());
 
@@ -104,17 +111,25 @@ const { firefox } = require('playwright');
 
       if (links.length > 0) {
         const randomLink = links[Math.floor(Math.random() * links.length)];
-        console.log(`Session ${id}: Navigating to link: ${randomLink}`);
+        if (DEBUG) {
+          console.log(`Session ${id}: Navigating to link: ${randomLink}`);
+        }
         await page.goto(randomLink);
         await page.waitForTimeout(randomDelay());
       } else {
-        console.log(`Session ${id}: No links found to navigate to.`);
+        if (DEBUG) {
+          console.log(`Session ${id}: No links found to navigate to.`);
+        }
       }
     } catch (error) {
-      console.error(`Session ${id}: An error occurred: ${error}`);
+      if (DEBUG) {
+        console.error(`Session ${id}: An error occurred: ${error}`);
+      }
     } finally {
       await browser.close();
-      console.log(`Session ${id}: Browser closed.`);
+      if (DEBUG) {
+        console.log(`Session ${id}: Browser closed.`);
+      }
     }
   }
 
