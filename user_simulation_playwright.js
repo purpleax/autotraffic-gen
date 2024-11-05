@@ -12,6 +12,7 @@ const { firefox } = require('playwright');
   const DISABLE_CSS = process.env.DISABLE_CSS === 'true';
   const VIEWPORT_WIDTH = parseInt(process.env.VIEWPORT_WIDTH, 10);
   const VIEWPORT_HEIGHT = parseInt(process.env.VIEWPORT_HEIGHT, 10);
+  const ONLY_INTERNAL_LINKS = process.env.ONLY_INTERNAL_LINKS === 'true'; // New option
 
   // Validate required environment variables
   if (
@@ -26,6 +27,10 @@ const { firefox } = require('playwright');
     console.error('Please ensure MIN_DELAY, MAX_DELAY, CONCURRENCY, TARGET_WEBSITE, VIEWPORT_WIDTH, and VIEWPORT_HEIGHT are set correctly.');
     process.exit(1);
   }
+
+  // Parse the target URL to extract the domain
+  const targetUrl = new URL(TARGET_WEBSITE);
+  const targetDomain = targetUrl.hostname;
 
   function randomDelay() {
     return Math.floor(Math.random() * (MAX_DELAY - MIN_DELAY + 1) + MIN_DELAY);
@@ -61,12 +66,29 @@ const { firefox } = require('playwright');
       await page.goto(TARGET_WEBSITE);
       await page.waitForTimeout(randomDelay());
 
-      const links = await page.$$eval('a[href]', (anchors) => anchors.map((a) => a.href));
+      // Extract links from the page
+      let links = await page.$$eval('a[href]', (anchors) => anchors.map((a) => a.href));
+
+      // Filter links to only include those within the target domain if ONLY_INTERNAL_LINKS is true
+      if (ONLY_INTERNAL_LINKS) {
+        links = links.filter((link) => {
+          try {
+            const url = new URL(link, TARGET_WEBSITE);
+            return url.hostname === targetDomain;
+          } catch (e) {
+            // Ignore invalid URLs
+            return false;
+          }
+        });
+      }
+
       if (links.length > 0) {
         const randomLink = links[Math.floor(Math.random() * links.length)];
         console.log(`Session ${id}: Navigating to link: ${randomLink}`);
         await page.goto(randomLink);
         await page.waitForTimeout(randomDelay());
+      } else {
+        console.log(`Session ${id}: No links found to navigate to.`);
       }
     } catch (error) {
       console.error(`Session ${id}: An error occurred: ${error}`);
