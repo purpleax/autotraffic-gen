@@ -7,12 +7,13 @@ services:
       dockerfile: Dockerfile
     image: user-simulator-playwright:latest
     environment:
-      - MIN_DELAY=2000
-      - MAX_DELAY=10000
-      - CONCURRENCY=5
+      - MIN_DELAY=2000            # Minimum delay in milliseconds
+      - MAX_DELAY=10000           # Maximum delay in milliseconds
+      - CONCURRENCY=2             # Number of concurrent sessions per script instance
       - TARGET_WEBSITE=https://www.example.com  # Replace with your target website
-      - DISABLE_IMAGES=true
-      - DISABLE_CSS=true
-      - VIEWPORT_WIDTH=1024
-      - VIEWPORT_HEIGHT=768
+      - DISABLE_IMAGES=true       # Disable images to reduce resource usage
+      - DISABLE_CSS=true          # Disable CSS to reduce resource usage
+      - VIEWPORT_WIDTH=1024       # Width of the browser viewport
+      - VIEWPORT_HEIGHT=768       # Height of the browser viewport
+      - PM2_INSTANCES=2           # Number of script instances to run
     restart: always

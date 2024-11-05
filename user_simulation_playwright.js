@@ -3,15 +3,29 @@
 const { firefox } = require('playwright');
 
 (async () => {
-  // Configurable settings via environment variables
-  const MIN_DELAY = parseInt(process.env.MIN_DELAY, 10) || 1000; // in milliseconds
-  const MAX_DELAY = parseInt(process.env.MAX_DELAY, 10) || 5000; // in milliseconds
-  const CONCURRENCY = parseInt(process.env.CONCURRENCY, 10) || 5; // Number of concurrent sessions
-  const TARGET_WEBSITE = process.env.TARGET_WEBSITE || 'https://www.fastlylab.com';
-  const DISABLE_IMAGES = process.env.DISABLE_IMAGES === 'true'; // Disable images if set to 'true'
-  const DISABLE_CSS = process.env.DISABLE_CSS === 'true'; // Disable CSS if set to 'true'
-  const VIEWPORT_WIDTH = parseInt(process.env.VIEWPORT_WIDTH, 10) || 800; // Default width
-  const VIEWPORT_HEIGHT = parseInt(process.env.VIEWPORT_HEIGHT, 10) || 600; // Default height
+  // Read configuration from environment variables
+  const MIN_DELAY = parseInt(process.env.MIN_DELAY, 10);
+  const MAX_DELAY = parseInt(process.env.MAX_DELAY, 10);
+  const CONCURRENCY = parseInt(process.env.CONCURRENCY, 10);
+  const TARGET_WEBSITE = process.env.TARGET_WEBSITE;
+  const DISABLE_IMAGES = process.env.DISABLE_IMAGES === 'true';
+  const DISABLE_CSS = process.env.DISABLE_CSS === 'true';
+  const VIEWPORT_WIDTH = parseInt(process.env.VIEWPORT_WIDTH, 10);
+  const VIEWPORT_HEIGHT = parseInt(process.env.VIEWPORT_HEIGHT, 10);
+
+  // Validate required environment variables
+  if (
+    isNaN(MIN_DELAY) ||
+    isNaN(MAX_DELAY) ||
+    isNaN(CONCURRENCY) ||
+    !TARGET_WEBSITE ||
+    isNaN(VIEWPORT_WIDTH) ||
+    isNaN(VIEWPORT_HEIGHT)
+  ) {
+    console.error('Error: One or more required environment variables are missing or invalid.');
+    console.error('Please ensure MIN_DELAY, MAX_DELAY, CONCURRENCY, TARGET_WEBSITE, VIEWPORT_WIDTH, and VIEWPORT_HEIGHT are set correctly.');
+    process.exit(1);
+  }
 
   function randomDelay() {
     return Math.floor(Math.random() * (MAX_DELAY - MIN_DELAY + 1) + MIN_DELAY);

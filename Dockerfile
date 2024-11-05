@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y \
     libxshmfence1 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install PM2 globally
+RUN npm install pm2 -g
+
 # Set the working directory
 WORKDIR /app
 
@@ -30,12 +33,8 @@ RUN npx playwright install --with-deps firefox
 # Copy the Playwright script into the container
 COPY user_simulation_playwright.js /app/user_simulation_playwright.js
 
-# Copy any additional necessary files (e.g., .env file)
-# Uncomment the following line if you are using an .env file
-# COPY .env /app/.env
-
 # Expose any necessary ports (optional)
 # EXPOSE 9615
 
-# Define the command to run your script
-CMD ["npm", "start"]
+# Define the command to run your script using shell format to expand environment variables
+CMD pm2-runtime start user_simulation_playwright.js -i $PM2_INSTANCES
