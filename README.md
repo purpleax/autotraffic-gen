@@ -97,6 +97,59 @@ Create a file named `.env` in the project root:
 
 ## Building the Docker Image
 
+**Explanation of the Dockerfile:**
+
+-   **Base Image:**
+    
+    -   Uses `node:lts-slim` as the base image for a lightweight Node.js environment compatible with multiple architectures, including ARM64.
+-   **Installing Dependencies:**
+    
+    -   Installs system libraries required by Playwright and Firefox using `apt-get install`.
+    -   The libraries include GTK, NSS, and others necessary for headless browser operation.
+-   **Working Directory:**
+    
+    -   Sets `/app` as the working directory inside the container.
+-   **Copying Files:**
+    
+    -   Copies `package.json` and `package-lock.json` to install Node.js dependencies.
+    -   Copies the `user_simulation_playwright.js` script into the container.
+-   **Installing Node.js Dependencies:**
+    
+    -   Runs `npm install` to install the dependencies specified in `package.json`, including Playwright.
+-   **Installing Playwright Browsers:**
+    
+    -   Executes `npx playwright install --with-deps firefox` to install the Firefox browser and any additional dependencies required by Playwright.
+    -   If you wish to use a different browser (e.g., Chromium or WebKit), replace `firefox` with the desired browser in the command.
+-   **Environment Variables:**
+    
+    -   Environment variables such as `MIN_DELAY`, `MAX_DELAY`, `CONCURRENCY`, and others are not set in the Dockerfile. Instead, they are specified at runtime via `docker-compose.yml` or an `.env` file to allow for flexibility and easy configuration changes without modifying the Docker image.
+-   **Command:**
+    
+    -   The `CMD` instruction defines the default command to run when the container starts. It uses `npm start`, which executes the `start` script defined in your `package.json`.
+-   **Optional Steps:**
+    
+    -   If you're using an `.env` file for environment variables, you may need to copy it into the Docker image. Uncomment the `COPY .env /app/.env` line if necessary.
+    -   The `EXPOSE` instruction is commented out but can be used to expose any ports if your application requires it.
+
+----------
+
+### **Additional Notes:**
+
+-   **Multi-Architecture Support:**
+    
+    -   The `node:lts-slim` image is a multi-architecture image, which means it supports both `amd64` and `arm64` platforms. This is useful if you're running Docker on an ARM-based system.
+-   **Browser Choice:**
+    
+    -   The Dockerfile installs Firefox by default for use with Playwright due to its better support on ARM architectures.
+    -   If you wish to use a different browser, adjust the `npx playwright install` command accordingly and ensure that your script imports the correct browser.
+-   **Environment Variables:**
+    
+    -   Since the script reads configuration options from environment variables, you should specify these variables in your `docker-compose.yml` file or via the `docker run` command.
+    -   This approach allows you to change configurations without rebuilding the Docker image.
+-   **Dependencies:**
+    
+    -   The list of libraries installed via `apt-get` may vary depending on the browser and version of Playwright you're using. If you encounter errors related to missing libraries, you may need to install additional packages.
+
 Build the Docker image using Docker Compose:
 
     docker-compose build

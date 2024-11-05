@@ -1,0 +1,13 @@
+{
+    "name": "user-simulator-playwright",
+    "version": "1.0.0",
+    "description": "Simulate user behavior on a website using Playwright.",
+    "main": "user_simulation_playwright.js",
+    "scripts": {
+      "start": "node user_simulation_playwright.js"
+    },
+    "dependencies": {
+      "playwright": "^1.39.0"
+    }
+  }
+  
