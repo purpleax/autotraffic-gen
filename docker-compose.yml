@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  user-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: user-simulator-playwright:latest
+    environment:
+      - MIN_DELAY=2000
+      - MAX_DELAY=10000
+      - CONCURRENCY=5
+      - TARGET_WEBSITE=https://www.example.com  # Replace with your target website
+      - DISABLE_IMAGES=true
+      - DISABLE_CSS=true
+      - VIEWPORT_WIDTH=1024
+      - VIEWPORT_HEIGHT=768
+    restart: always
