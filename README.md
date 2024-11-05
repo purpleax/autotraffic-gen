@@ -71,27 +71,51 @@ Configure the behavior of the traffic generator using environment variables. You
 #### Setting Variables in `docker-compose.yml`
 
     environment:
-      - MIN_DELAY=2000
-      - MAX_DELAY=10000
-      - CONCURRENCY=5
-      - TARGET_WEBSITE=https://www.example.com
-      - DISABLE_IMAGES=true
-      - DISABLE_CSS=true
-      - VIEWPORT_WIDTH=1024
-      - VIEWPORT_HEIGHT=768
+      - MIN_DELAY=2000            # Minimum delay in milliseconds
+      - MAX_DELAY=10000           # Maximum delay in milliseconds
+      - CONCURRENCY=5             # Number of concurrent sessions per script instance
+      - TARGET_WEBSITE=https://www.example.com  # Replace with your target website
+      - DISABLE_IMAGES=true       # Disable images to reduce resource usage
+      - DISABLE_CSS=true          # Disable CSS to reduce resource usage
+      - VIEWPORT_WIDTH=1024       # Width of the browser viewport
+      - VIEWPORT_HEIGHT=768       # Height of the browser viewport
+      - PM2_INSTANCES=5           # Number of script instances to run
+      - ONLY_INTERNAL_LINKS=true  # Set to 'true' to only follow internal links
+      - DEBUG=false               # Set to 'true' to enable debug logging
+    restart: always
+
 
 #### Using an `.env` File
 
 Create a file named `.env` in the project root:
 
-    MIN_DELAY=2000
-    MAX_DELAY=10000
-    CONCURRENCY=5
-    TARGET_WEBSITE=https://www.example.com
-    DISABLE_IMAGES=true
-    DISABLE_CSS=true
-    VIEWPORT_WIDTH=1024
-    VIEWPORT_HEIGHT=768
+ # Delay configuration
+MIN_DELAY=2000
+MAX_DELAY=10000
+
+# Concurrency settings
+CONCURRENCY=5
+PM2_INSTANCES=3
+
+# Target website
+TARGET_WEBSITE=https://www.example.com
+
+# Resource optimization
+DISABLE_IMAGES=true
+DISABLE_CSS=true
+
+# Viewport settings
+VIEWPORT_WIDTH=1024
+VIEWPORT_HEIGHT=768
+
+# Navigation options
+ONLY_INTERNAL_LINKS=true
+
+# Custom headers (JSON string)
+CUSTOM_HEADERS={"X-Custom-Header1":"Value1","X-Custom-Header2":"Value2"}
+
+# Debug mode
+DEBUG=false
 
 ## Building the Docker Image
 
