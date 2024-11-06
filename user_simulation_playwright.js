@@ -73,12 +73,12 @@ process.on('uncaughtException', (error) => {
         headless: true,
       });
 
-      // Create a new browser context
-      const context = await browser.newContext();
+      // Create context options
+      const contextOptions = {};
 
       // Set User-Agent if specified
       if (USER_AGENT) {
-        await context.setUserAgent(USER_AGENT);
+        contextOptions.userAgent = USER_AGENT;
         if (DEBUG) {
           console.log(`Session ${id}: Setting User-Agent: ${USER_AGENT}`);
         }
@@ -86,12 +86,13 @@ process.on('uncaughtException', (error) => {
 
       // Set custom headers if specified
       if (Object.keys(customHeaders).length > 0) {
-        await context.setExtraHTTPHeaders(customHeaders);
+        contextOptions.extraHTTPHeaders = customHeaders;
         if (DEBUG) {
           console.log(`Session ${id}: Setting custom headers:`, customHeaders);
         }
       }
 
+      const context = await browser.newContext(contextOptions);
       const page = await context.newPage();
 
       // Set navigation timeout
