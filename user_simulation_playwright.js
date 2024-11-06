@@ -24,6 +24,10 @@ process.on('uncaughtException', (error) => {
   const ONLY_INTERNAL_LINKS = process.env.ONLY_INTERNAL_LINKS === 'true';
   const DEBUG = process.env.DEBUG === 'true'; // Debug flag
 
+  // Read User-Agent and Navigation Timeout from environment variables
+  const USER_AGENT = process.env.USER_AGENT;
+  const NAVIGATION_TIMEOUT = parseInt(process.env.NAVIGATION_TIMEOUT, 10) || 60000; // Default to 60000ms
+
   // Custom headers
   let customHeaders = {};
   if (process.env.CUSTOM_HEADERS) {
@@ -48,7 +52,9 @@ process.on('uncaughtException', (error) => {
     isNaN(VIEWPORT_HEIGHT)
   ) {
     console.error('Error: One or more required environment variables are missing or invalid.');
-    console.error('Please ensure MIN_DELAY, MAX_DELAY, CONCURRENCY, TARGET_WEBSITE, VIEWPORT_WIDTH, and VIEWPORT_HEIGHT are set correctly.');
+    console.error(
+      'Please ensure MIN_DELAY, MAX_DELAY, CONCURRENCY, TARGET_WEBSITE, VIEWPORT_WIDTH, and VIEWPORT_HEIGHT are set correctly.'
+    );
     process.exit(1);
   }
 
@@ -66,21 +72,33 @@ process.on('uncaughtException', (error) => {
       browser = await chromium.launch({
         headless: true,
       });
-      const page = await browser.newPage();
 
-      // Set navigation timeout
-      page.setDefaultNavigationTimeout(60000); // 60 seconds
+      // Create a new browser context
+      const context = await browser.newContext();
 
-      // Set viewport size
-      await page.setViewportSize({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT });
+      // Set User-Agent if specified
+      if (USER_AGENT) {
+        await context.setUserAgent(USER_AGENT);
+        if (DEBUG) {
+          console.log(`Session ${id}: Setting User-Agent: ${USER_AGENT}`);
+        }
+      }
 
       // Set custom headers if specified
       if (Object.keys(customHeaders).length > 0) {
-        await page.setExtraHTTPHeaders(customHeaders);
+        await context.setExtraHTTPHeaders(customHeaders);
         if (DEBUG) {
           console.log(`Session ${id}: Setting custom headers:`, customHeaders);
         }
       }
+
+      const page = await context.newPage();
+
+      // Set navigation timeout
+      page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT); // Use configurable timeout
+
+      // Set viewport size
+      await page.setViewportSize({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT });
 
       // Optionally disable images and CSS
       if (DISABLE_IMAGES || DISABLE_CSS) {
@@ -139,6 +157,8 @@ process.on('uncaughtException', (error) => {
         console.error(`Session ${id}: Browser was closed unexpectedly.`);
       } else if (error.message.includes('Page crashed')) {
         console.error(`Session ${id}: Page crashed during navigation.`);
+      } else if (error.name === 'TimeoutError') {
+        console.error(`Session ${id}: Navigation timed out after ${NAVIGATION_TIMEOUT} ms.`);
       } else {
         console.error(`Session ${id}: An unexpected error occurred:`, error);
       }
