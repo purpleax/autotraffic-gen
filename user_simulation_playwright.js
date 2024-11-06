@@ -1,6 +1,6 @@
 // user_simulation_playwright.js
 
-const { firefox } = require('playwright');
+const { chromium } = require('playwright');
 
 // Global error handling for unhandled promise rejections and exceptions
 process.on('unhandledRejection', (reason, promise) => {
@@ -63,10 +63,13 @@ process.on('uncaughtException', (error) => {
   async function simulateUserBehavior(id) {
     let browser;
     try {
-      browser = await firefox.launch({
+      browser = await chromium.launch({
         headless: true,
       });
       const page = await browser.newPage();
+
+      // Set navigation timeout
+      page.setDefaultNavigationTimeout(60000); // 60 seconds
 
       // Set viewport size
       await page.setViewportSize({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT });
@@ -99,6 +102,7 @@ process.on('uncaughtException', (error) => {
         console.log(`Session ${id}: Opening the homepage ${TARGET_WEBSITE}.`);
       }
       await page.goto(TARGET_WEBSITE);
+
       await page.waitForTimeout(randomDelay());
 
       // Extract links from the page
@@ -123,6 +127,7 @@ process.on('uncaughtException', (error) => {
           console.log(`Session ${id}: Navigating to link: ${randomLink}`);
         }
         await page.goto(randomLink);
+
         await page.waitForTimeout(randomDelay());
       } else {
         if (DEBUG) {
@@ -130,9 +135,15 @@ process.on('uncaughtException', (error) => {
         }
       }
     } catch (error) {
-      console.error(`Session ${id}: An error occurred:`, error);
+      if (error.message.includes('Target page, context or browser has been closed')) {
+        console.error(`Session ${id}: Browser was closed unexpectedly.`);
+      } else if (error.message.includes('Page crashed')) {
+        console.error(`Session ${id}: Page crashed during navigation.`);
+      } else {
+        console.error(`Session ${id}: An unexpected error occurred:`, error);
+      }
     } finally {
-      if (browser) {
+      if (browser && browser.isConnected && browser.isConnected()) {
         await browser.close();
         if (DEBUG) {
           console.log(`Session ${id}: Browser closed.`);

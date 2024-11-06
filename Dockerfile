@@ -1,7 +1,7 @@
 # Use the official Node.js LTS version as the base image
 FROM node:lts-slim
 
-# Install dependencies required for Playwright and the Firefox browser
+# Install dependencies required for Playwright and the Chromium browser
 RUN apt-get update && apt-get install -y \
     libnss3 \
     libatk-bridge2.0-0 \
@@ -13,6 +13,17 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     libgtk-3-0 \
     libxshmfence1 \
+    libpangocairo-1.0-0 \
+    libxcomposite1 \
+    libxrandr2 \
+    libatk1.0-0 \
+    libcups2 \
+    libatspi2.0-0 \
+    libpango-1.0-0 \
+    libharfbuzz0b \
+    libxdamage1 \
+    libxext6 \
+    libvpx7 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PM2 globally
@@ -27,8 +38,8 @@ COPY package*.json ./
 # Install npm dependencies
 RUN npm install
 
-# Install Playwright browsers with dependencies (specifically Firefox)
-RUN npx playwright install --with-deps firefox
+# Install Playwright browsers with dependencies (specifically Chromium)
+RUN npx playwright install --with-deps chromium
 
 # Copy the Playwright script into the container
 COPY user_simulation_playwright.js /app/user_simulation_playwright.js
